@@ -239,9 +239,14 @@
   </div>
   <!-- Noise overlay for texture -->
   <div aria-hidden="true" class="noise-overlay"></div>
-  <!-- Custom cursor -->
-  <div aria-hidden="true" id="cursor-dot"></div>
-  <div aria-hidden="true" id="cursor-ring"></div>
+  <!-- Target Cursor -->
+  <div aria-hidden="true" id="target-cursor" class="target-cursor-wrapper">
+    <div id="target-cursor-dot" class="target-cursor-dot"></div>
+    <div class="target-cursor-corner corner-tl"></div>
+    <div class="target-cursor-corner corner-tr"></div>
+    <div class="target-cursor-corner corner-br"></div>
+    <div class="target-cursor-corner corner-bl"></div>
+  </div>
   <!-- Back to top -->
   <a aria-label="Back to top" href="#" id="back-top">↑</a>
   <!-- ==================== NAV ==================== -->
@@ -283,7 +288,7 @@
   </div>
   <!-- ==================== HERO ==================== -->
   <section aria-label="Introduction" id="hero">
-    <div aria-hidden="true" class="grid-bg"></div>
+    <div aria-hidden="true" id="dot-grid" class="dot-grid"></div>
     <div aria-hidden="true" class="accent-glow"></div>
     <div class="hero-container">
       <div class="hero-text-content">
@@ -2290,6 +2295,9 @@ the security that actually holds, the interface that actually ships.
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="js/dotgrid.js"></script>
+  <script defer src="js/targetcursor.js"></script>
   <script defer="" src="js/main.js"></script>
 </body>
 

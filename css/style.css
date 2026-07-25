@@ -46,9 +46,6 @@
     }
 
     /* ===== LIGHT THEME — hardcoded color overrides ===== */
-    [data-theme="light"] #cursor-ring {
-      border-color: rgba(61, 133, 0, 0.45);
-    }
 
     [data-theme="light"] .hero-stat::after {
       background: linear-gradient(120deg,
@@ -387,40 +384,65 @@
       pointer-events: auto;
     }
 
-    /* ===== CUSTOM CURSOR ===== */
-    #cursor-dot {
+    /* ===== CUSTOM CURSOR (TargetCursor) ===== */
+    .target-cursor-wrapper {
       position: fixed;
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
       pointer-events: none;
       z-index: 100000;
-      transform: translate(-50%, -50%);
-      transition: transform 0.08s, opacity 0.2s;
       mix-blend-mode: difference;
-    }
-
-    #cursor-ring {
-      position: fixed;
-      width: 34px;
-      height: 34px;
-      border: 1.5px solid rgba(184, 255, 60, 0.45);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 99999;
       transform: translate(-50%, -50%);
-      transition: transform 0.18s cubic-bezier(.22, 1, .36, 1), width 0.18s, height 0.18s, opacity 0.2s;
     }
 
-    body.cursor-hover #cursor-dot {
-      transform: translate(-50%, -50%) scale(2.5);
+    .target-cursor-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      will-change: transform;
     }
 
-    body.cursor-hover #cursor-ring {
-      width: 52px;
-      height: 52px;
-      opacity: 0.6;
+    .target-cursor-corner {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      border: 2px solid var(--accent);
+      will-change: transform;
+      box-sizing: border-box;
+      transition: border-color 0.15s ease;
+    }
+
+    .corner-tl {
+      transform: translate(-18px, -18px);
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .corner-tr {
+      transform: translate(6px, -18px);
+      border-left: none;
+      border-bottom: none;
+    }
+
+    .corner-br {
+      transform: translate(6px, 6px);
+      border-left: none;
+      border-top: none;
+    }
+
+    .corner-bl {
+      transform: translate(-18px, 6px);
+      border-right: none;
+      border-top: none;
     }
 
     /* ===== NAV ===== */
@@ -725,9 +747,8 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 110px 3rem 2rem;
-      max-width: 1300px;
-      margin: 0 auto;
+      padding: 110px 0 2rem;
+      width: 100%;
       position: relative;
       overflow: hidden;
       perspective: 1200px;
@@ -760,6 +781,9 @@
       justify-content: space-between;
       gap: 3rem;
       width: 100%;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 3rem;
       position: relative;
       z-index: 10;
     }
@@ -835,6 +859,30 @@
     .hero-image-wrap:hover::after {
       opacity: 1;
       transform: scale(1);
+    }
+
+    /* ===== INTERACTIVE DOT GRID ===== */
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .dot-grid__wrap {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .dot-grid__canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
     }
 
     [data-theme="light"] .site-loader-greeting {
@@ -4619,8 +4667,10 @@
         linear-gradient(180deg, #f8f3ea 0%, #f2ebdf 52%, #ebe3d5 100%);
     }
 
-    [data-theme="light"] #cursor-dot {
+    [data-theme="light"] .target-cursor-wrapper {
       mix-blend-mode: normal;
+    }
+    [data-theme="light"] .target-cursor-dot {
       box-shadow: 0 0 0 5px rgba(68, 111, 22, 0.12);
     }
 
@@ -4863,13 +4913,14 @@
 
       #hero {
         min-height: auto;
-        padding: 94px 1rem 2.5rem;
+        padding: 94px 0 2.5rem;
       }
 
       .hero-container {
         flex-direction: column;
         align-items: stretch;
         gap: 1.75rem;
+        padding: 0 1rem;
       }
 
       .hero-text-content {
