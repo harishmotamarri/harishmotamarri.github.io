@@ -376,8 +376,8 @@ class DotGrid {
 
 // Auto-initialize when content loads
 document.addEventListener('DOMContentLoaded', () => {
-  const container = document.getElementById('dot-grid');
-  if (container) {
+  const containers = document.querySelectorAll('.dot-grid');
+  containers.forEach(container => {
     new DotGrid(container, {
       dotSize: 6,           // Smaller, cleaner dots
       gap: 24,              // Greater distance for a less cluttered view
@@ -389,5 +389,5 @@ document.addEventListener('DOMContentLoaded', () => {
       resistance: 750,
       returnDuration: 1.5
     });
-  }
+  });
 });

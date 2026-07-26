@@ -289,6 +289,7 @@
   <!-- ==================== HERO ==================== -->
   <section aria-label="Introduction" id="hero">
     <div aria-hidden="true" id="dot-grid" class="dot-grid"></div>
+    <div aria-hidden="true" id="liquid-ether"></div>
     <div aria-hidden="true" class="accent-glow"></div>
     <div class="hero-container">
       <div class="hero-text-content">
@@ -437,6 +438,8 @@ the security that actually holds, the interface that actually ships.
   </div>
   <!-- ==================== ABOUT ==================== -->
   <section id="about">
+    <div aria-hidden="true" class="dot-grid"></div>
+    <div aria-hidden="true" class="accent-glow"></div>
     <div class="section">
       <div class="about-grid">
         <!-- left: heading + story -->
@@ -455,8 +458,8 @@ the security that actually holds, the interface that actually ships.
           </div>
         </div>
         <!-- right: both cards -->
-        <div class="about-sidebar reveal reveal-delay-2" style="display:flex; flex-direction:column; gap:1rem;">
-          <div class="profile-card" style="margin-bottom:0;">
+        <div class="about-sidebar" style="display:flex; flex-direction:column; gap:1rem;">
+          <div class="profile-card reveal reveal-delay-2" style="margin-bottom:0;">
             <img src="assets/images/profile_nobg.png" class="profile-avatar" alt="Harish Motamarri"
               style="object-fit: cover; object-position: top; padding: 2px;" />
             <div class="profile-name">Harish Motamarri</div>
@@ -468,7 +471,7 @@ the security that actually holds, the interface that actually ships.
               <a class="social-btn" href="#contact">Email</a>
             </div>
           </div>
-          <div class="info-block" style="margin-bottom:0;">
+          <div class="info-block reveal reveal-delay-3" style="margin-bottom:0;">
             <div class="info-row">
               <span class="info-key">Status</span>
               <span class="info-val green">Open to internships</span>
@@ -492,6 +495,7 @@ the security that actually holds, the interface that actually ships.
   </section>
   <!-- ==================== SKILLS ==================== -->
   <section id="skills">
+    <div aria-hidden="true" id="skills-cursor-grid"></div>
     <div class="section-full">
       <div class="skills-container">
         <div class="reveal">
@@ -555,6 +559,8 @@ the security that actually holds, the interface that actually ships.
   </section>
   <!-- ==================== PROJECTS ==================== -->
   <section id="projects">
+    <div aria-hidden="true" class="dot-grid"></div>
+    <div aria-hidden="true" class="accent-glow"></div>
     <div class="section">
       <div class="reveal">
         <div aria-hidden="true" class="sec-num-big">03</div>
@@ -1752,6 +1758,7 @@ the security that actually holds, the interface that actually ships.
   </section>
   <!-- ==================== EXPERIENCE ==================== -->
   <section id="experience">
+    <div aria-hidden="true" id="experience-galaxy"></div>
     <div class="section">
       <div class="reveal">
         <div aria-hidden="true" class="sec-num-big">04</div>
@@ -2116,6 +2123,7 @@ the security that actually holds, the interface that actually ships.
   </section>
   <!-- ==================== ACHIEVEMENTS ==================== -->
   <section id="achievements">
+    <div aria-hidden="true" id="achievements-cursor-grid"></div>
     <div class="section-full">
       <div class="ach-container">
         <div class="reveal">
@@ -2177,6 +2185,7 @@ the security that actually holds, the interface that actually ships.
   </section>
   <!-- ==================== BUILD PHILOSOPHY ==================== -->
   <section id="philosophy">
+    <div aria-hidden="true" id="philosophy-galaxy"></div>
     <div class="section-full">
       <div class="ach-container">
         <div class="reveal">
@@ -2209,6 +2218,8 @@ the security that actually holds, the interface that actually ships.
   </section>
   <!-- ==================== CONTACT ==================== -->
   <section id="contact">
+    <div aria-hidden="true" class="dot-grid"></div>
+    <div aria-hidden="true" class="accent-glow"></div>
     <div class="section">
       <div class="reveal">
         <div aria-hidden="true" class="sec-num-big">07</div>
@@ -2295,8 +2306,13 @@ the security that actually holds, the interface that actually ships.
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="js/liquidether.js"></script>
+  <script type="module" src="js/galaxy.js"></script>
   <script defer src="js/dotgrid.js"></script>
+  <script defer src="js/clickspark.js"></script>
+  <script defer src="js/cursorgrid.js"></script>
   <script defer src="js/targetcursor.js"></script>
   <script defer="" src="js/main.js"></script>
 </body>

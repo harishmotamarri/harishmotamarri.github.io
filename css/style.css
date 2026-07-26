@@ -885,6 +885,51 @@
       pointer-events: none;
     }
 
+    .liquid-ether-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      touch-action: none;
+    }
+
+    .galaxy-container {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      touch-action: none;
+    }
+
+    .galaxy-container canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .cursor-grid {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+      touch-action: none;
+      overflow: hidden;
+    }
+
+    .cursor-grid__canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
     [data-theme="light"] .site-loader-greeting {
       color: #1c1914;
     }
@@ -1770,6 +1815,66 @@
 
     .section-full {
       padding: 7rem 3rem;
+    }
+
+    /* ===== SEAMLESS INTERACTIVE BACKGROUND FOR ALL CONTENT SECTIONS ===== */
+    #about {
+      position: relative;
+      perspective: 1200px;
+    }
+
+    #skills,
+    #projects,
+    #experience,
+    #achievements,
+    #philosophy,
+    #contact {
+      position: relative;
+      overflow: hidden;
+      perspective: 1200px;
+    }
+
+    #about::before,
+    #skills::before,
+    #projects::before,
+    #experience::before,
+    #achievements::before,
+    #philosophy::before,
+    #contact::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 800px 600px at 50% 30%, rgba(184, 255, 60, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      animation: float-slow 8s ease-in-out infinite;
+    }
+
+    #about::after,
+    #skills::after,
+    #projects::after,
+    #experience::after,
+    #achievements::after,
+    #philosophy::after,
+    #contact::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 600px 800px at 80% 60%, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+      animation: float-slow 10s ease-in-out infinite reverse;
+    }
+
+    #about .section,
+    #skills .section-full,
+    #projects .section,
+    #experience .section,
+    #achievements .section-full,
+    #philosophy .section-full,
+    #contact .section {
+      position: relative;
+      z-index: 10;
     }
 
     .sec-label {
