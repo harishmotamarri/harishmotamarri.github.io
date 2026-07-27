@@ -861,57 +861,6 @@
       transform: scale(1);
     }
 
-    /* ===== INTERACTIVE DOT GRID ===== */
-    .dot-grid {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .dot-grid__wrap {
-      width: 100%;
-      height: 100%;
-      position: relative;
-    }
-
-    .dot-grid__canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-    .liquid-ether-container {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
-      touch-action: none;
-    }
-
-    .galaxy-container {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1;
-      pointer-events: none;
-      touch-action: none;
-    }
-
-    .galaxy-container canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
     .cursor-grid {
       position: absolute;
       inset: 0;
