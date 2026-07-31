@@ -407,9 +407,10 @@ class TargetCursor {
 
 // Auto-initialize when content loads
 document.addEventListener('DOMContentLoaded', () => {
+  const isAdminPage = window.location.pathname.includes('admin');
   window.targetCursorInstance = new TargetCursor({
     spinDuration: 4,
-    hideDefaultCursor: true,
+    hideDefaultCursor: !isAdminPage,
     parallaxOn: true,
     cursorColor: 'var(--accent)',
     cursorColorOnTarget: 'var(--accent2)'

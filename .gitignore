@@ -21,4 +21,9 @@ __pycache__/
 *.tmp
 *.log
 
+# Environment & Secrets
+.env
+.env.*
+.env.local
+
 .vercel

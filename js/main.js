@@ -1352,46 +1352,7 @@
       });
     });
 
-    /* ---- Contact Form: mailto with user inputs ---- */
-    const contactMailForm = document.getElementById('contact-mail-form');
-    if (contactMailForm) {
-      contactMailForm.addEventListener('submit', (event) => {
-        event.preventDefault();
 
-        const nameField = document.getElementById('contact-name');
-        const aboutField = document.getElementById('contact-about');
-        const senderName = nameField ? nameField.value.trim() : '';
-        const aboutMessage = aboutField ? aboutField.value.trim() : '';
-        const displayName = senderName || 'Portfolio Visitor';
-
-        const mailSubject = 'Collaboration Opportunity from Portfolio';
-        const mailBody = [
-          'Hi Harish,',
-          '',
-          'I came across your portfolio and would love to connect regarding a potential collaboration.',
-          '',
-          `Name: ${displayName}`,
-          '',
-          'Message:',
-          aboutMessage || '[Your message]',
-          '',
-          'Looking forward to hearing from you.',
-          '',
-          'Best regards,',
-          displayName
-        ].join('\n');
-
-        const encodedSubject = encodeURIComponent(mailSubject);
-        const encodedBody = encodeURIComponent(mailBody);
-        const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=motamarriharish@gmail.com&su=${encodedSubject}&body=${encodedBody}`;
-        const mailtoUrl = `mailto:motamarriharish@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
-
-        const openedWindow = window.open(gmailComposeUrl, '_blank', 'noopener');
-        if (!openedWindow) {
-          window.location.href = mailtoUrl;
-        }
-      });
-    }
 
     /* ---- Theme Toggle ---- */
     const themeBtn = document.getElementById('theme-toggle');
@@ -1455,32 +1416,34 @@
     /* ---- Visitor Counter ---- */
     const visitorBadge = document.getElementById('visitor-badge');
     const badgeCount = document.getElementById('badge-count');
-    const visitorCounterBase = 'https://api.counterapi.dev/v1/harishmotamarri-portfolio/visitors';
     const visitorCacheKey = 'portfolio-visitor-count';
     const visitorLastCountedKey = 'portfolio-visitor-last-counted-at';
     const visitorCountWindowMs = 24 * 60 * 60 * 1000;
 
     const formatVisitorCount = (count) => count.toLocaleString('en-IN');
 
-    const readVisitorCount = async (shouldIncrement) => {
-      const endpoint = shouldIncrement ? `${visitorCounterBase}/up` : `${visitorCounterBase}/`;
-      const response = await fetch(`${endpoint}?ts=${Date.now()}`, {
-        cache: 'no-store',
-        mode: 'cors'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Visitor counter request failed with ${response.status}`);
+    const readVisitorCount = async () => {
+      if (!supabaseClient) {
+        throw new Error('Supabase client not initialized.');
       }
 
-      const data = await response.json();
-      const nextCount = Number(data.count ?? data.value);
-
-      if (!Number.isFinite(nextCount)) {
-        throw new Error('Visitor counter response did not include a numeric count');
+      // 1. Try RPC get_visitor_count or increment_visitor_count
+      let rpcRes = await supabaseClient.rpc('get_visitor_count');
+      if (rpcRes.error) {
+        rpcRes = await supabaseClient.rpc('increment_visitor_count');
       }
 
-      return nextCount;
+      if (!rpcRes.error && rpcRes.data !== null && rpcRes.data !== undefined) {
+        return Number(rpcRes.data);
+      }
+
+      // 2. Fallback: Query visitor_sessions count directly
+      const { count, error } = await supabaseClient
+        .from('visitor_sessions')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) throw error;
+      return count || 0;
     };
 
     const updateVisitorCounter = async () => {
@@ -1492,20 +1455,15 @@
       if (cachedCount) badgeCount.textContent = cachedCount;
 
       try {
-        const lastCountedAt = Number(localStorage.getItem(visitorLastCountedKey) || 0);
-        const shouldIncrement = !Number.isFinite(lastCountedAt)
-          || (Date.now() - lastCountedAt) > visitorCountWindowMs;
-        const nextCount = await readVisitorCount(shouldIncrement);
+        const nextCount = await readVisitorCount();
         const formattedCount = formatVisitorCount(nextCount);
 
         badgeCount.textContent = formattedCount;
         visitorBadge.dataset.state = 'live';
         localStorage.setItem(visitorCacheKey, formattedCount);
-
-        if (shouldIncrement) {
-          localStorage.setItem(visitorLastCountedKey, String(Date.now()));
-        }
+        localStorage.setItem(visitorLastCountedKey, String(Date.now()));
       } catch (error) {
+        console.warn('Could not update visitor counter from Supabase:', error.message || error);
         visitorBadge.dataset.state = 'offline';
         if (!cachedCount) badgeCount.textContent = '--';
       }
@@ -1562,5 +1520,48 @@
         if (e.key === 'Escape' && lightbox.classList.contains('is-open')) {
           closeLightbox();
         }
+      });
+    })();
+
+    /* ---- Hidden Admin Trigger ---- */
+    (function initAdminTrigger() {
+      const navLogo = document.querySelector('.nav-logo');
+      if (!navLogo) return;
+
+      const REQUIRED_CLICKS = 5;
+      const INACTIVITY_TIMEOUT_MS = 3000;
+
+      let clickCount = 0;
+      let resetTimer = null;
+
+      const resetCounter = () => {
+        clickCount = 0;
+        if (resetTimer) {
+          window.clearTimeout(resetTimer);
+          resetTimer = null;
+        }
+      };
+
+      navLogo.addEventListener('click', (event) => {
+        // Prevent default <a> tag reload so clicks accumulate without destroying JS memory
+        event.preventDefault();
+
+        clickCount += 1;
+
+        if (resetTimer) {
+          window.clearTimeout(resetTimer);
+        }
+
+        if (clickCount >= REQUIRED_CLICKS) {
+          resetCounter();
+          window.location.href = 'admin.html';
+          return;
+        }
+
+        // If not reaching 5 clicks within 3s, perform default smooth scroll to top & reset
+        resetTimer = window.setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          resetCounter();
+        }, INACTIVITY_TIMEOUT_MS);
       });
     })();

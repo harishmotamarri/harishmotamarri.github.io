@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script>
+    window.addEventListener('error', function (e) {
+      const msg = e.message || 'Resource load failed: ' + (e.target.src || e.target.href);
+      console.log('CAPTURED ERROR:', msg);
+      const container = document.getElementById('toast-container');
+      if (container) {
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-error show';
+        toast.innerHTML = `<span class="toast-message">🚨 ${msg}</span>`;
+        container.appendChild(toast);
+      }
+    }, true);
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Harish Motamarri | Admin</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap"
+    rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+
+  <script>
+    // Immediate Theme Sync to prevent flashing
+    (function syncTheme() {
+      const saved = localStorage.getItem('theme');
+      if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+</head>
+
+<body>
+
+  <!-- Login Modal Overlay (Active by default until authenticated) -->
+  <div class="token-modal-overlay active" id="login-overlay">
+    <div class="token-modal">
+      <h2 style="font-family: var(--display); font-size:1.8rem; font-weight:700;">Admin Sign In</h2>
+
+      <form id="login-form" style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+        <input type="email" class="token-input" id="login-email" placeholder="Admin Email" style="margin-bottom:0;"
+          required autocomplete="username">
+        <input type="password" class="token-input" id="login-password" placeholder="Password" style="margin-bottom:0;"
+          required autocomplete="current-password">
+        <button type="submit" class="btn-token-submit" id="btn-login-submit"
+          style="margin-top:8px;">Authenticate</button>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- Dashboard Container -->
+  <div id="dashboard-main-content">
+    <!-- Admin Header -->
+    <header class="admin-header">
+      <div class="admin-logo">Harish Motamarri<span> - Analytics</span></div>
+      <div class="header-controls">
+        <button class="theme-toggle-admin" id="theme-toggle" aria-label="Toggle Theme">🌙</button>
+        <button class="btn-admin" id="btn-refresh">🔄 Refresh</button>
+        <button class="btn-admin" id="btn-logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="admin-container">
+
+      <!-- Intro -->
+      <section class="admin-intro">
+        <h1>Dashboard Overview</h1>
+        <p>Real-time serverless statistics and user engagement tracking logs.</p>
+      </section>
+
+      <!-- KPI Cards Grid -->
+      <section class="kpi-grid" id="kpi-container">
+        <!-- Load state placeholder -->
+      </section>
+
+      <!-- Chart Card -->
+      <section class="admin-card" style="margin-bottom: 24px; padding: 24px;">
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+          <h2 style="font-size:1.3rem; font-weight:600;">Traffic Over Time</h2>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-admin chart-tab active" data-type="daily">Daily</button>
+            <button class="btn-admin chart-tab" data-type="weekly">Weekly</button>
+            <button class="btn-admin chart-tab" data-type="monthly">Monthly</button>
+          </div>
+        </div>
+        <div style="height: 320px; position: relative;">
+          <canvas id="visitorsChart"></canvas>
+        </div>
+      </section>
+
+      <!-- Grid Layout -->
+      <div class="dashboard-section-grid">
+
+        <!-- Aggregate Lists Sidebar -->
+        <aside class="sidebar-list">
+          <div class="admin-card list-card" id="card-countries">
+            <h3>Top Countries</h3>
+          </div>
+          <div class="admin-card list-card" id="card-browsers">
+            <h3>Top Browsers</h3>
+          </div>
+          <div class="admin-card list-card" id="card-devices">
+            <h3>Top Devices</h3>
+          </div>
+          <div class="admin-card list-card" id="card-pages">
+            <h3>Top Pages</h3>
+          </div>
+          <div class="admin-card list-card" id="card-projects">
+            <h3>Top Projects</h3>
+          </div>
+        </aside>
+
+        <!-- Main Feeds Column -->
+        <div style="display: flex; flex-direction: column; gap: 24px;">
+
+          <!-- Recent Visitor Sessions Table -->
+          <section class="admin-card">
+            <div class="recent-header" style="flex-wrap: wrap; gap: 12px;">
+              <h2>Recent Sessions</h2>
+              <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="search-visitor" class="token-input" placeholder="Search sessions..."
+                  style="width:200px; padding:8px 12px; font-size:13px; margin-bottom:0; border-radius:6px;">
+                <select id="filter-device" class="btn-admin"
+                  style="padding:8px 12px; font-size:13px; border-radius:6px;">
+                  <option value="all">All Devices</option>
+                  <option value="Desktop">Desktop</option>
+                  <option value="Mobile">Mobile</option>
+                  <option value="Tablet">Tablet</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-wrapper" id="recent-table-wrapper">
+              <!-- Load state placeholders -->
+            </div>
+            <div id="pagination-container"
+              style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
+              <!-- Pagination elements -->
+            </div>
+          </section>
+
+          <!-- Contact Messages Table -->
+          <section class="admin-card">
+            <div class="recent-header">
+              <h2>Contact Messages Inbox</h2>
+            </div>
+            <div class="table-wrapper" id="recent-messages-wrapper">
+              <!-- Messages logs -->
+            </div>
+          </section>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Target Cursor Elements -->
+  <div aria-hidden="true" id="target-cursor" class="target-cursor-wrapper">
+    <div id="target-cursor-dot" class="target-cursor-dot"></div>
+    <div class="target-cursor-corner corner-tl"></div>
+    <div class="target-cursor-corner corner-tr"></div>
+    <div class="target-cursor-corner corner-br"></div>
+    <div class="target-cursor-corner corner-bl"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- CDN SDK Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@0.7.37/dist/ua-parser.min.js"></script>
+
+  <!-- Client-Side Dashboard JS Logic -->
+  <script src="js/supabase.js"></script>
+  <script defer src="js/admin.js"></script>
+  <!-- <script defer src="js/clickspark.js"></script> -->
+  <!-- <script defer src="js/targetcursor.js"></script> -->
+
+  <!-- Styling adjust to display dashboard container conditionally -->
+  <style>
+    #dashboard-main-content.active {
+      display: block !important;
+    }
+
+    .kpi-subtext {
+      font-size: 13px;
+      color: var(--accent);
+      font-family: var(--mono);
+      font-weight: 500;
+    }
+
+    .header-count-badge {
+      font-size: 11px;
+      font-family: var(--mono);
+      color: var(--accent);
+      background: var(--accent3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+      font-weight: normal;
+    }
+  </style>
+</body>
+
+</html>

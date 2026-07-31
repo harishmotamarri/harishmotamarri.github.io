@@ -2261,6 +2261,10 @@ the security that actually holds, the interface that actually ships.
                 <span class="contact-field-label">Name</span>
                 <input class="contact-input" id="contact-name" name="name" placeholder="What's your name Bruhh?" required type="text" />
               </label>
+              <label class="contact-field" for="contact-email">
+                <span class="contact-field-label">Email</span>
+                <input class="contact-input" id="contact-email" name="email" placeholder="Where can I reach you?" required type="email" />
+              </label>
               <label class="contact-field" for="contact-about">
                 <span class="contact-field-label">About</span>
                 <textarea class="contact-input contact-textarea" id="contact-about" name="about" placeholder="How's everything going?" required rows="4"></textarea>
@@ -2299,11 +2303,17 @@ the security that actually holds, the interface that actually ships.
       <img id="lightbox-img" src="" alt="Certificate Preview">
     </div>
   </div>
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ua-parser-js@0.7.37/dist/ua-parser.min.js"></script>
+  <script src="js/supabase.js"></script>
   <script defer src="js/clickspark.js"></script>
   <script defer src="js/cursorgrid.js"></script>
   <script defer src="js/targetcursor.js"></script>
-  <script defer="" src="js/main.js"></script>
+  <script defer src="js/main.js"></script>
+  <script defer src="js/analytics.js"></script>
 </body>
-
 </html>
