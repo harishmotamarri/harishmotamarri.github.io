@@ -18,6 +18,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Harish Motamarri | Admin</title>
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,66 +46,128 @@
   <!-- Login Modal Overlay (Active by default until authenticated) -->
   <div class="token-modal-overlay active" id="login-overlay">
     <div class="token-modal">
-      <h2 style="font-family: var(--display); font-size:1.8rem; font-weight:700;">Admin Sign In</h2>
+      <div class="modal-brand-badge">
+        <span class="brand-dot"></span>
+        <span>SECURITY PORTAL</span>
+      </div>
+      <h2>Admin Authentication</h2>
+      <p class="modal-subtext">This page is exclusively for me. Don't dare to open it.</p>
 
-      <form id="login-form" style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
-        <input type="email" class="token-input" id="login-email" placeholder="Admin Email" style="margin-bottom:0;"
-          required autocomplete="username">
-        <input type="password" class="token-input" id="login-password" placeholder="Password" style="margin-bottom:0;"
-          required autocomplete="current-password">
-        <button type="submit" class="btn-token-submit" id="btn-login-submit"
-          style="margin-top:8px;">Authenticate</button>
+      <form id="login-form" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="input-group">
+          <label for="login-email" class="input-label">Admin Email</label>
+          <input type="email" class="token-input" id="login-email" placeholder="You'll never guess it" required
+            autocomplete="username">
+        </div>
+        <div class="input-group">
+          <label for="login-password" class="input-label">Password</label>
+          <input type="password" class="token-input" id="login-password" placeholder="••••••••••••" required
+            autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn-token-submit" id="btn-login-submit">
+          <span>Authenticate</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
       </form>
     </div>
   </div>
 
 
-  <!-- Dashboard Container -->
+  <!-- Dashboard Main Container -->
   <div id="dashboard-main-content">
-    <!-- Admin Header -->
+
+    <!-- Admin Header Bar -->
     <header class="admin-header">
-      <div class="admin-logo">Harish Motamarri<span> - Analytics</span></div>
+      <div class="header-brand">
+        <div class="admin-logo">
+          Harish Motamarri<span class="logo-accent"> - Analytics</span>
+        </div>
+        <div class="live-status-pill" title="Real-time Database Connection Active">
+          <span class="pulse-ring"></span>
+          <span class="pulse-dot"></span>
+          <span class="status-label">LIVE</span>
+        </div>
+      </div>
+
       <div class="header-controls">
-        <button class="theme-toggle-admin" id="theme-toggle" aria-label="Toggle Theme">🌙</button>
-        <button class="btn-admin" id="btn-refresh">🔄 Refresh</button>
-        <button class="btn-admin" id="btn-logout">Logout</button>
+        <div class="date-badge" id="current-date-badge"></div>
+
+        <button class="btn-admin icon-btn" id="btn-refresh" title="Refresh Dashboard Metrics">
+          <svg class="refresh-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+          </svg>
+          <span>Refresh</span>
+        </button>
+
+        <button class="theme-toggle-admin" id="theme-toggle" aria-label="Toggle Theme"
+          title="Toggle Light/Dark Theme">🌙</button>
+
+        <button class="btn-admin btn-logout-danger" id="btn-logout" title="Sign out of Admin Session">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
+          <span>Logout</span>
+        </button>
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Main Workspace Container -->
     <main class="admin-container">
 
-      <!-- Intro -->
+      <!-- Workspace Hero Intro -->
       <section class="admin-intro">
-        <h1>Dashboard Overview</h1>
-        <p>Real-time serverless statistics and user engagement tracking logs.</p>
+        <div class="intro-left">
+          <h1 class="page-title">Executive Dashboard</h1>
+          <p class="page-desc">Real-time visitor sessions, engagement telemetry, and system performance metrics.</p>
+        </div>
       </section>
 
-      <!-- KPI Cards Grid -->
+      <!-- KPI Metrics Grid -->
       <section class="kpi-grid" id="kpi-container">
-        <!-- Load state placeholder -->
+        <!-- JS Shimmer Skeletons will load here -->
       </section>
 
-      <!-- Chart Card -->
-      <section class="admin-card" style="margin-bottom: 24px; padding: 24px;">
-        <div
-          style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
-          <h2 style="font-size:1.3rem; font-weight:600;">Traffic Over Time</h2>
-          <div style="display: flex; gap: 8px;">
-            <button class="btn-admin chart-tab active" data-type="daily">Daily</button>
-            <button class="btn-admin chart-tab" data-type="weekly">Weekly</button>
-            <button class="btn-admin chart-tab" data-type="monthly">Monthly</button>
+      <!-- Traffic Analytics Chart Card -->
+      <section class="admin-card chart-card">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <h2>Traffic Telemetry</h2>
+            <p class="chart-subtitle">Click metric buttons to toggle lines or change time period</p>
+          </div>
+
+          <div class="chart-controls-wrapper">
+            <!-- Clickable Metric Lines Toggles -->
+            <div class="metric-toggle-group" id="metric-toggles">
+              <button class="btn-metric-toggle active" id="toggle-visitors" data-dataset="0" title="Click to show/hide Unique Visitors line">
+                <span class="metric-indicator indicator-green"></span>
+                <span>Unique Visitors</span>
+              </button>
+              <button class="btn-metric-toggle active" id="toggle-sessions" data-dataset="1" title="Click to show/hide Total Sessions line">
+                <span class="metric-indicator indicator-blue"></span>
+                <span>Total Sessions</span>
+              </button>
+            </div>
+
+            <!-- Time Period Filters -->
+            <div class="chart-tabs">
+              <button class="btn-admin chart-tab active" data-type="daily">Daily</button>
+              <button class="btn-admin chart-tab" data-type="weekly">Weekly</button>
+              <button class="btn-admin chart-tab" data-type="monthly">Monthly</button>
+            </div>
           </div>
         </div>
-        <div style="height: 320px; position: relative;">
+        <div class="chart-canvas-wrapper">
           <canvas id="visitorsChart"></canvas>
         </div>
       </section>
 
-      <!-- Grid Layout -->
+      <!-- Main Content Grid -->
       <div class="dashboard-section-grid">
 
-        <!-- Aggregate Lists Sidebar -->
+        <!-- Sidebar Breakdown Lists -->
         <aside class="sidebar-list">
           <div class="admin-card list-card" id="card-countries">
             <h3>Top Countries</h3>
@@ -123,18 +186,26 @@
           </div>
         </aside>
 
-        <!-- Main Feeds Column -->
-        <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- Main Feed Column -->
+        <div class="main-feed-column">
 
-          <!-- Recent Visitor Sessions Table -->
-          <section class="admin-card">
-            <div class="recent-header" style="flex-wrap: wrap; gap: 12px;">
-              <h2>Recent Sessions</h2>
-              <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                <input type="text" id="search-visitor" class="token-input" placeholder="Search sessions..."
-                  style="width:200px; padding:8px 12px; font-size:13px; margin-bottom:0; border-radius:6px;">
-                <select id="filter-device" class="btn-admin"
-                  style="padding:8px 12px; font-size:13px; border-radius:6px;">
+          <!-- Recent Visitor Sessions Table Card -->
+          <section class="admin-card feed-card">
+            <div class="feed-header">
+              <div class="feed-title-block">
+                <h2>Visitor Sessions Log</h2>
+                <span class="feed-subtitle">Click any session row for detailed telemetry & timeline</span>
+              </div>
+              <div class="feed-actions">
+                <div class="search-input-wrapper">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input type="text" id="search-visitor" class="token-input search-input"
+                    placeholder="Search sessions...">
+                </div>
+                <select id="filter-device" class="btn-admin filter-select">
                   <option value="all">All Devices</option>
                   <option value="Desktop">Desktop</option>
                   <option value="Mobile">Mobile</option>
@@ -144,21 +215,24 @@
             </div>
 
             <div class="table-wrapper" id="recent-table-wrapper">
-              <!-- Load state placeholders -->
+              <!-- JS rendered session rows -->
             </div>
-            <div id="pagination-container"
-              style="display:flex; justify-content:space-between; align-items:center; margin-top:20px; flex-wrap:wrap; gap:12px;">
-              <!-- Pagination elements -->
+
+            <div id="pagination-container" class="pagination-wrapper">
+              <!-- JS Pagination controls -->
             </div>
           </section>
 
-          <!-- Contact Messages Table -->
-          <section class="admin-card">
-            <div class="recent-header">
-              <h2>Contact Messages Inbox</h2>
+          <!-- Contact Messages Inbox Card -->
+          <section class="admin-card feed-card">
+            <div class="feed-header">
+              <div class="feed-title-block">
+                <h2>Contact Messages Inbox</h2>
+                <span class="feed-subtitle">Incoming inquiries and correspondence</span>
+              </div>
             </div>
             <div class="table-wrapper" id="recent-messages-wrapper">
-              <!-- Messages logs -->
+              <!-- JS rendered messages -->
             </div>
           </section>
 
@@ -166,19 +240,42 @@
 
       </div>
     </main>
+
+    <!-- Admin Footer (Matches Portfolio Footer Style) -->
+    <footer class="admin-footer">
+      <div class="footer-logo">Harish Motamarri<span> - Admin Portal</span></div>
+
+      <div class="footer-copy">
+        Designed &amp; built with care by me. <br />© 2026 Harish Motamarri. All rights reserved.
+      </div>
+      <button class="footer-back" id="admin-back-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">Back to top ↑</button>
+    </footer>
   </div>
 
-  <!-- Target Cursor Elements -->
-  <div aria-hidden="true" id="target-cursor" class="target-cursor-wrapper">
-    <div id="target-cursor-dot" class="target-cursor-dot"></div>
-    <div class="target-cursor-corner corner-tl"></div>
-    <div class="target-cursor-corner corner-tr"></div>
-    <div class="target-cursor-corner corner-br"></div>
-    <div class="target-cursor-corner corner-bl"></div>
-  </div>
+  <!-- Visitor Session Details Side Drawer -->
+  <div class="drawer-backdrop" id="session-drawer-overlay"></div>
+  <aside class="session-drawer" id="session-drawer" aria-hidden="true" role="dialog">
+    <div class="drawer-header">
+      <div class="drawer-title-block">
+        <span class="drawer-badge" id="drawer-session-id">Session Details</span>
+        <h3 id="drawer-visitor-title">Visitor Inspection</h3>
+      </div>
+      <button class="drawer-close-btn" id="close-drawer-btn" aria-label="Close details panel">&times;</button>
+    </div>
+
+    <div class="drawer-body" id="drawer-body-content">
+      <!-- Dynamic Drawer Content populated by admin.js -->
+    </div>
+  </aside>
 
   <!-- Toast Notification Container -->
   <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Fixed Bottom Right Return to Main Portfolio Button -->
+  <a href="index.html" class="btn-return-portfolio" id="btn-return-portfolio" title="Return to Main Portfolio">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    <span>Return to Portfolio</span>
+  </a>
 
   <!-- CDN SDK Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -189,31 +286,27 @@
   <!-- Client-Side Dashboard JS Logic -->
   <script src="js/supabase.js"></script>
   <script defer src="js/admin.js"></script>
-  <!-- <script defer src="js/clickspark.js"></script> -->
-  <!-- <script defer src="js/targetcursor.js"></script> -->
 
-  <!-- Styling adjust to display dashboard container conditionally -->
+  <!-- Inline Display Trigger Helper -->
   <style>
+    #dashboard-main-content:not(.active) {
+      display: none !important;
+    }
+
     #dashboard-main-content.active {
       display: block !important;
     }
 
-    .kpi-subtext {
-      font-size: 13px;
-      color: var(--accent);
-      font-family: var(--mono);
-      font-weight: 500;
+    .token-modal-overlay:not(.active) {
+      display: none !important;
     }
 
-    .header-count-badge {
-      font-size: 11px;
-      font-family: var(--mono);
-      color: var(--accent);
-      background: var(--accent3);
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-left: 8px;
-      font-weight: normal;
+    .drawer-backdrop:not(.is-open) {
+      display: none !important;
+    }
+
+    .session-drawer:not(.is-open) {
+      display: none !important;
     }
   </style>
 </body>

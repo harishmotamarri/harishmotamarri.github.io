@@ -1,6 +1,6 @@
 /**
- * Visitor Analytics Admin Dashboard Module
- * Uses Supabase Auth, client-side RLS queries, and Chart.js
+ * Visitor Analytics Executive Admin Dashboard Module
+ * Uses Supabase Auth, client-side RLS queries, Chart.js, and SaaS Side Drawer
  */
 (function initAdminDashboard() {
   const PAGE_SIZE = 10;
@@ -63,7 +63,21 @@
   const showDashboard = () => {
     document.getElementById('login-overlay').classList.remove('active');
     document.getElementById('dashboard-main-content').classList.add('active');
+    updateHeaderDate();
     loadDashboardData();
+  };
+
+  // Header Date Badge
+  const updateHeaderDate = () => {
+    const el = document.getElementById('current-date-badge');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
   // Toast Notification Helper
@@ -84,21 +98,27 @@
   };
 
   // Authenticate Admin
+  let isAuthenticating = false;
   const handleLogin = async () => {
+    if (isAuthenticating) return;
+
     const emailField = document.getElementById('login-email');
     const passwordField = document.getElementById('login-password');
     const submitBtn = document.getElementById('btn-login-submit');
 
-    const email = emailField.value.trim();
-    const password = passwordField.value;
+    const email = emailField ? emailField.value.trim() : '';
+    const password = passwordField ? passwordField.value : '';
 
     if (!email || !password) {
       showToast('Please enter both email and password.', 'error');
       return;
     }
 
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = 'Authenticating...';
+    isAuthenticating = true;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Authenticating...</span>';
+    }
 
     try {
       const { data, error } = await window.supabaseClient.auth.signInWithPassword({
@@ -114,8 +134,11 @@
       console.error('Login failed:', err);
       showToast(err.message || 'Authentication failed.', 'error');
     } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Authenticate';
+      isAuthenticating = false;
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>Authenticate</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+      }
     }
   };
 
@@ -149,6 +172,7 @@
 
   // Timestamps formatter
   const formatTimeAgo = (isoString) => {
+    if (!isoString) return 'N/A';
     const date = new Date(isoString);
     return date.toLocaleDateString(undefined, {
       month: 'short',
@@ -160,34 +184,49 @@
 
   // Render Shimmer Skeletons
   const showLoadingSkeletons = () => {
-    document.getElementById('kpi-container').innerHTML = Array(6).fill(0).map(() => `
-      <div class="admin-card kpi-card">
-        <div class="kpi-title shimmer" style="width:50%; height:12px;"></div>
-        <div class="kpi-value shimmer" style="width:80%; height:32px; margin-top:8px;"></div>
-      </div>
-    `).join('');
+    const kpiContainer = document.getElementById('kpi-container');
+    if (kpiContainer) {
+      kpiContainer.innerHTML = Array(6).fill(0).map(() => `
+        <div class="admin-card kpi-card">
+          <div class="shimmer shimmer-title"></div>
+          <div class="shimmer shimmer-value" style="margin-top:8px;"></div>
+        </div>
+      `).join('');
+    }
 
     const aggregateCards = ['countries', 'browsers', 'devices', 'pages', 'projects'];
     aggregateCards.forEach(c => {
       const el = document.getElementById(`card-${c}`);
       if (el) {
         el.innerHTML = `<h3>Top ${c.charAt(0).toUpperCase() + c.slice(1)}</h3>
-          <div class="loading-list"><div class="shimmer"></div><div class="shimmer"></div><div class="shimmer"></div></div>`;
+          <div style="display:flex; flex-direction:column; gap:8px; margin-top:12px;">
+            <div class="shimmer"></div><div class="shimmer"></div><div class="shimmer"></div>
+          </div>`;
       }
     });
 
-    document.getElementById('recent-table-wrapper').innerHTML = `
-      <div class="shimmer" style="height: 40px; margin-bottom: 12px;"></div>
-      <div class="shimmer" style="height: 60px; margin-bottom: 12px;"></div>
-      <div class="shimmer" style="height: 60px; margin-bottom: 12px;"></div>
-      <div class="shimmer" style="height: 60px;"></div>
-    `;
+    const recentTable = document.getElementById('recent-table-wrapper');
+    if (recentTable) {
+      recentTable.innerHTML = `
+        <div style="padding:16px;">
+          <div class="shimmer" style="height: 38px; margin-bottom: 12px;"></div>
+          <div class="shimmer" style="height: 52px; margin-bottom: 12px;"></div>
+          <div class="shimmer" style="height: 52px; margin-bottom: 12px;"></div>
+          <div class="shimmer" style="height: 52px;"></div>
+        </div>
+      `;
+    }
     
-    document.getElementById('recent-messages-wrapper').innerHTML = `
-      <div class="shimmer" style="height: 40px; margin-bottom: 12px;"></div>
-      <div class="shimmer" style="height: 80px; margin-bottom: 12px;"></div>
-      <div class="shimmer" style="height: 80px;"></div>
-    `;
+    const messagesWrapper = document.getElementById('recent-messages-wrapper');
+    if (messagesWrapper) {
+      messagesWrapper.innerHTML = `
+        <div style="padding:16px;">
+          <div class="shimmer" style="height: 38px; margin-bottom: 12px;"></div>
+          <div class="shimmer" style="height: 60px; margin-bottom: 12px;"></div>
+          <div class="shimmer" style="height: 60px;"></div>
+        </div>
+      `;
+    }
   };
 
   // Fetch KPI Aggregates (using SQL RPC Function)
@@ -214,41 +253,73 @@
       ? Math.round((data.returningVisitors / data.totalVisitors) * 100)
       : 0;
 
-    document.getElementById('kpi-container').innerHTML = `
+    const kpiContainer = document.getElementById('kpi-container');
+    if (!kpiContainer) return;
+
+    kpiContainer.innerHTML = `
       <div class="admin-card kpi-card">
-        <div class="kpi-title">Total Visitors</div>
+        <div class="kpi-header-row">
+          <span class="kpi-title">Total Visitors</span>
+          <div class="kpi-icon-badge">👥</div>
+        </div>
         <div class="kpi-value">${data.totalVisitors.toLocaleString()}</div>
+        <div class="kpi-trend">↑ All-time unique</div>
       </div>
+
       <div class="admin-card kpi-card">
-        <div class="kpi-title">Active (24h)</div>
+        <div class="kpi-header-row">
+          <span class="kpi-title">Active (24h)</span>
+          <div class="kpi-icon-badge">⚡</div>
+        </div>
         <div class="kpi-value">${data.todayVisitors.toLocaleString()}</div>
+        <div class="kpi-trend">↑ Last 24 hours</div>
       </div>
+
       <div class="admin-card kpi-card">
-        <div class="kpi-title">Weekly Active</div>
+        <div class="kpi-header-row">
+          <span class="kpi-title">Weekly Active</span>
+          <div class="kpi-icon-badge">📅</div>
+        </div>
         <div class="kpi-value">${data.weekVisitors.toLocaleString()}</div>
+        <div class="kpi-trend">↑ Last 7 days</div>
       </div>
+
       <div class="admin-card kpi-card">
-        <div class="kpi-title">Returning Rate</div>
-        <div class="kpi-value">${data.returningVisitors.toLocaleString()} <span class="kpi-subtext">(${returningRate}%)</span></div>
+        <div class="kpi-header-row">
+          <span class="kpi-title">Returning Rate</span>
+          <div class="kpi-icon-badge">🔄</div>
+        </div>
+        <div class="kpi-value">${data.returningVisitors.toLocaleString()}</div>
+        <div class="kpi-trend">↑ ${returningRate}% return rate</div>
       </div>
+
       <div class="admin-card kpi-card">
-        <div class="kpi-title">Avg Session Duration</div>
+        <div class="kpi-header-row">
+          <span class="kpi-title">Avg Duration</span>
+          <div class="kpi-icon-badge">⏱️</div>
+        </div>
         <div class="kpi-value">${formatDuration(Math.round(data.avgDuration))}</div>
+        <div class="kpi-trend">↑ Per session avg</div>
       </div>
+
       <div class="admin-card kpi-card">
-        <div class="kpi-title">Avg Scroll Depth</div>
+        <div class="kpi-header-row">
+          <span class="kpi-title">Avg Scroll Depth</span>
+          <div class="kpi-icon-badge">📜</div>
+        </div>
         <div class="kpi-value">${Math.round(data.avgScroll)}%</div>
+        <div class="kpi-trend">↑ Page completion</div>
       </div>
     `;
 
-    // Render Lists
+    // Render Breakdown Lists
     renderList('countries', 'Top Countries', data.topCountries, 'country');
     renderList('browsers', 'Top Browsers', data.topBrowsers, 'browser');
     renderList('devices', 'Top Devices', data.topDevices, 'device');
     renderList('pages', 'Top Pages', data.topPages, 'page');
     renderList('projects', 'Top Projects', data.topProjects, 'project_name');
     
-    // Add total resume downloads to subtitle/info if needed
+    // Add total resume downloads count to projects header
     const projectsHeader = document.querySelector('#card-projects h3');
     if (projectsHeader) {
       projectsHeader.innerHTML = `Top Projects <span class="header-count-badge">Resume Req: ${data.totalDownloads || 0}</span>`;
@@ -320,6 +391,8 @@
 
   const renderRecentSessions = () => {
     const container = document.getElementById('recent-table-wrapper');
+    if (!container) return;
+
     if (activeSessions.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -335,17 +408,18 @@
       <table class="recent-table">
         <thead>
           <tr>
-            <th>Session Info</th>
+            <th>Session ID</th>
             <th>Location</th>
-            <th>Client Info</th>
+            <th>Client Spec</th>
             <th>Current Page</th>
             <th>Duration / Scroll</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
     `;
 
-    activeSessions.forEach(s => {
+    activeSessions.forEach((s, idx) => {
       const returningTag = s.is_returning
         ? '<span class="text-returning">• Returning</span>'
         : '<span style="color:var(--muted); font-size:11px;">• New</span>';
@@ -358,25 +432,33 @@
       const pagePath = s.current_page || s.landing_page;
       const viewsCount = pvs.length;
 
+      // Determine active / online status (last seen within 5 minutes)
+      const lastSeenMs = s.last_seen ? new Date(s.last_seen).getTime() : 0;
+      const isOnline = (Date.now() - lastSeenMs) < (5 * 60 * 1000) && !s.ended_at;
+
+      const statusTag = isOnline
+        ? '<span class="status-pill status-online">🟢 Active</span>'
+        : '<span class="status-pill status-offline">⚪ Ended</span>';
+
       html += `
-        <tr>
+        <tr class="clickable-row" data-session-index="${idx}" title="Click to view full session timeline & metadata">
           <td>
             <div class="session-info">
-              <span class="session-badge" title="Session UUID: ${s.session_id}">${s.session_id.substring(0, 8)}...</span>
-              <span style="font-size:12px; color:var(--muted); margin-top:2px;">${formatTimeAgo(s.started_at)}</span>
+              <span class="session-badge" style="font-family:var(--mono);">${s.session_id.substring(0, 8)}...</span>
+              <span style="font-size:11.5px; color:var(--muted); font-family:var(--mono); margin-top:2px;">${formatTimeAgo(s.started_at)}</span>
             </div>
           </td>
           <td>
-            <div style="font-weight:500;">${location}</div>
+            <div style="font-weight:600; font-size:13.5px;">${location}</div>
             <div style="font-size:11px; font-family:var(--mono); color:var(--muted); margin-top:2px;">${s.timezone || 'Unknown'}</div>
           </td>
           <td>
-            <div>${s.device} ${returningTag}</div>
+            <div><strong>${s.device}</strong> ${returningTag}</div>
             <div style="font-size:12px; color:var(--muted); margin-top:2px;" title="${s.user_agent}">${s.browser} (${s.operating_system})</div>
           </td>
           <td>
             <div class="session-pages">
-              <strong style="color:var(--text); font-size:13.5px;">${pagePath}</strong>
+              <strong style="color:var(--text); font-size:13px;">${pagePath}</strong>
               <span style="font-size:11px; color:var(--muted); display:block; margin-top:2px;" title="Path history: ${pvs.map(p => p.page).join(' → ')}">Views: ${viewsCount}</span>
             </div>
           </td>
@@ -384,12 +466,131 @@
             <div style="font-weight:600; font-family:var(--mono); font-size:13px;">${formatDuration(s.visit_duration)}</div>
             <div style="font-size:11px; color:var(--muted); margin-top:2px;">Scroll: <strong>${Math.round(s.max_scroll_percentage)}%</strong></div>
           </td>
+          <td>
+            ${statusTag}
+          </td>
         </tr>
       `;
     });
 
     html += '</tbody></table>';
     container.innerHTML = html;
+
+    // Attach Click Event Handlers to rows to trigger Visitor Side Drawer
+    container.querySelectorAll('tr.clickable-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const index = parseInt(row.dataset.sessionIndex, 10);
+        if (!isNaN(index) && activeSessions[index]) {
+          openSessionDrawer(activeSessions[index]);
+        }
+      });
+    });
+  };
+
+  // Sliding Visitor Detail Side Drawer Logic
+  const openSessionDrawer = (session) => {
+    const drawer = document.getElementById('session-drawer');
+    const overlay = document.getElementById('session-drawer-overlay');
+    const bodyContent = document.getElementById('drawer-body-content');
+    const drawerSessionId = document.getElementById('drawer-session-id');
+    const drawerVisitorTitle = document.getElementById('drawer-visitor-title');
+
+    if (!drawer || !overlay || !bodyContent) return;
+
+    drawerSessionId.textContent = `UUID: ${session.session_id.substring(0, 13)}...`;
+    drawerVisitorTitle.textContent = `${session.city || 'Unknown'}, ${session.country || 'Unknown'}`;
+
+    const pvs = session.page_views || [];
+    const location = session.city && session.country ? `${session.city}, ${session.country}` : session.country || 'Unknown';
+    const resolution = (session.screen_width && session.screen_height) ? `${session.screen_width} × ${session.screen_height}` : 'N/A';
+
+    let timelineHtml = pvs.map(p => `
+      <div class="timeline-item">
+        <div class="timeline-time">${formatTimeAgo(p.visited_at)}</div>
+        <div style="font-weight:600; color:var(--text); margin-top:2px;">${p.page}</div>
+        <div style="font-size:11.5px; color:var(--muted);">${p.title || 'Page Visit'}</div>
+      </div>
+    `).join('');
+
+    if (pvs.length === 0) {
+      timelineHtml = `<div style="font-size:13px; color:var(--muted);">Landing on ${session.landing_page || '/'} recorded.</div>`;
+    }
+
+    bodyContent.innerHTML = `
+      <div class="drawer-grid">
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Visitor ID</div>
+          <div class="drawer-info-val" style="font-family:var(--mono); font-size:12px;">${session.visitor_id ? session.visitor_id.substring(0, 12) + '...' : 'Unknown'}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Returning Status</div>
+          <div class="drawer-info-val">${session.is_returning ? '⚡ Returning Visitor' : '✨ First Visit'}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Location</div>
+          <div class="drawer-info-val">${location}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Timezone</div>
+          <div class="drawer-info-val">${session.timezone || 'Unknown'}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Device Type</div>
+          <div class="drawer-info-val">${session.device || 'Desktop'}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Resolution</div>
+          <div class="drawer-info-val">${resolution}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Browser</div>
+          <div class="drawer-info-val">${session.browser || 'Unknown'}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Operating System</div>
+          <div class="drawer-info-val">${session.operating_system || 'Unknown'}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Session Duration</div>
+          <div class="drawer-info-val">${formatDuration(session.visit_duration)}</div>
+        </div>
+        <div class="drawer-info-card">
+          <div class="drawer-info-label">Max Scroll Depth</div>
+          <div class="drawer-info-val">${Math.round(session.max_scroll_percentage)}%</div>
+        </div>
+      </div>
+
+      <div class="drawer-section-title">Session Navigation Timeline</div>
+      <div class="timeline-list">
+        ${timelineHtml}
+      </div>
+
+      <div class="drawer-section-title" style="margin-top:28px;">Technical Details</div>
+      <div class="drawer-info-card" style="margin-bottom:12px;">
+        <div class="drawer-info-label">Referrer Source</div>
+        <div class="drawer-info-val" style="font-size:12px; font-family:var(--mono);">${session.referrer || 'Direct'}</div>
+      </div>
+      <div class="drawer-info-card">
+        <div class="drawer-info-label">User Agent String</div>
+        <div class="drawer-info-val" style="font-size:11px; font-family:var(--mono); color:var(--muted); line-height:1.4;">${session.user_agent || 'N/A'}</div>
+      </div>
+    `;
+
+    drawer.classList.add('is-open');
+    overlay.classList.add('is-open');
+    drawer.setAttribute('aria-hidden', 'false');
+  };
+
+  const closeSessionDrawer = () => {
+    const drawer = document.getElementById('session-drawer');
+    const overlay = document.getElementById('session-drawer-overlay');
+    if (drawer) {
+      drawer.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+    if (overlay) {
+      overlay.classList.remove('is-open');
+    }
   };
 
   const renderPaginationControls = () => {
@@ -403,9 +604,9 @@
     }
 
     container.innerHTML = `
-      <button class="btn-admin" id="btn-prev-page" ${currentPage === 0 ? 'disabled' : ''}>Previous</button>
-      <span style="font-size:13px; color:var(--muted); font-family:var(--mono)">Page ${currentPage + 1} of ${totalPages} (${totalSessionsCount} total)</span>
-      <button class="btn-admin" id="btn-next-page" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>Next</button>
+      <button class="btn-admin" id="btn-prev-page" ${currentPage === 0 ? 'disabled' : ''}>← Previous</button>
+      <span style="font-size:12.5px; color:var(--muted); font-family:var(--mono)">Page ${currentPage + 1} of ${totalPages} (${totalSessionsCount} total)</span>
+      <button class="btn-admin" id="btn-next-page" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>Next →</button>
     `;
 
     document.getElementById('btn-prev-page').addEventListener('click', () => {
@@ -442,12 +643,14 @@
 
   const renderMessages = (messages) => {
     const container = document.getElementById('recent-messages-wrapper');
+    if (!container) return;
+
     if (messages.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <span class="state-icon">✉️</span>
-          <div class="state-title">No messages</div>
-          <p class="state-desc">Your message box is currently empty.</p>
+          <div class="state-title">No messages in inbox</div>
+          <p class="state-desc">Your contact messages feed is currently empty.</p>
         </div>
       `;
       return;
@@ -457,8 +660,8 @@
       <table class="recent-table">
         <thead>
           <tr>
-            <th>Sender</th>
-            <th>Message</th>
+            <th>Sender Info</th>
+            <th>Message Body</th>
             <th>Received</th>
             <th>Status</th>
             <th>Action</th>
@@ -469,29 +672,44 @@
 
     messages.forEach(m => {
       let badgeColor = 'rgba(255, 255, 255, 0.05)';
-      if (m.status === 'unread') badgeColor = 'rgba(255, 87, 87, 0.1)';
-      else if (m.status === 'read') badgeColor = 'rgba(77, 166, 255, 0.1)';
-      else if (m.status === 'replied') badgeColor = 'rgba(184, 255, 60, 0.1)';
+      if (m.status === 'unread') badgeColor = 'rgba(255, 87, 87, 0.15)';
+      else if (m.status === 'read') badgeColor = 'rgba(77, 166, 255, 0.15)';
+      else if (m.status === 'replied') badgeColor = 'rgba(184, 255, 60, 0.15)';
 
-      const statusTag = `<span class="session-badge" style="background:${badgeColor}; color:var(--text);">${m.status}</span>`;
+      const statusTag = `<span class="session-badge" style="background:${badgeColor}; color:var(--text); font-weight:600;">${m.status.toUpperCase()}</span>`;
+      const encodedMsg = (m.message || '').replace(/"/g, '&quot;');
+      const encodedName = (m.name || '').replace(/"/g, '&quot;');
 
       html += `
         <tr data-msg-id="${m.id}">
           <td>
             <div style="font-weight:600;">${m.name}</div>
-            <div style="font-size:12px; color:var(--muted); margin-top:2px;">${m.email}</div>
+            <div style="font-size:12px; color:var(--muted); font-family:var(--mono); margin-top:2px;">${m.email}</div>
           </td>
-          <td style="max-width:320px; white-space:normal; word-break:break-word; line-height:1.4;">
+          <td style="max-width:300px; white-space:normal; word-break:break-word; line-height:1.45;">
             ${m.message}
           </td>
-          <td style="font-size:12.5px; color:var(--muted);">${formatTimeAgo(m.created_at)}</td>
+          <td style="font-size:12px; font-family:var(--mono); color:var(--muted);">${formatTimeAgo(m.created_at)}</td>
           <td>${statusTag}</td>
           <td>
-            <select class="btn-admin status-select" style="padding:4px 8px; font-size:12px;">
-              <option value="unread" ${m.status === 'unread' ? 'selected' : ''}>Unread</option>
-              <option value="read" ${m.status === 'read' ? 'selected' : ''}>Read</option>
-              <option value="replied" ${m.status === 'replied' ? 'selected' : ''}>Replied</option>
-            </select>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <a href="mailto:${m.email}?subject=Re:%20Portfolio%20Inquiry%20(${encodeURIComponent(m.name)})&body=${encodeURIComponent('\n\n--- Original Message from ' + m.name + ' ---\n' + m.message)}" 
+                 class="btn-reply-email" 
+                 title="Directly reply to ${m.name} via email" 
+                 data-msg-id="${m.id}"
+                 data-email="${m.email}"
+                 data-name="${encodedName}"
+                 data-msg="${encodedMsg}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                <span>Reply</span>
+              </a>
+
+              <select class="btn-admin status-select" style="padding:4px 8px; font-size:12px;">
+                <option value="unread" ${m.status === 'unread' ? 'selected' : ''}>Unread</option>
+                <option value="read" ${m.status === 'read' ? 'selected' : ''}>Read</option>
+                <option value="replied" ${m.status === 'replied' ? 'selected' : ''}>Replied</option>
+              </select>
+            </div>
           </td>
         </tr>
       `;
@@ -499,6 +717,39 @@
 
     html += '</tbody></table>';
     container.innerHTML = html;
+
+    // Attach Reply click listener to update status in-place when native mailto link is clicked
+    container.querySelectorAll('.btn-reply-email').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.msgId;
+        const email = btn.dataset.email;
+
+        // In-place UI update without destroying table DOM elements
+        const row = btn.closest('tr');
+        if (row) {
+          const badge = row.querySelector('.session-badge');
+          if (badge) {
+            badge.style.background = 'rgba(184, 255, 60, 0.15)';
+            badge.textContent = 'REPLIED';
+          }
+          const select = row.querySelector('.status-select');
+          if (select) select.value = 'replied';
+        }
+
+        // Persist status update to database in background
+        if (id) {
+          try {
+            await window.supabaseClient
+              .from('contact_messages')
+              .update({ status: 'replied' })
+              .eq('id', id);
+            showToast(`Opening email draft for ${email}...`, 'success');
+          } catch (err) {
+            console.error('Failed to update message status:', err);
+          }
+        }
+      });
+    });
 
     // Attach status toggle event listeners
     container.querySelectorAll('.status-select').forEach(select => {
@@ -553,7 +804,7 @@
       const visitorsData = [];
       const sessionsData = [];
 
-      data.forEach(row => {
+      (data || []).forEach(row => {
         labels.push(formatChartDate(row[dateKey], currentChartType));
         visitorsData.push(row.visitors);
         sessionsData.push(row.sessions);
@@ -584,9 +835,22 @@
       visitorsChart.destroy();
     }
 
-    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#b8ff3c';
-    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#ededed';
-    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || 'rgba(255,255,255,0.07)';
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const accentColor = isLight ? '#388e3c' : '#b8ff3c';
+    const secondaryColor = isLight ? '#0284c7' : '#4da6ff';
+    const textColor = isLight ? '#0f172a' : '#ededed';
+    const gridColor = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.05)';
+
+    // Build gradient fill for Vercel-style chart rendering
+    const chartCtx = ctx.getContext('2d');
+    const gradient = chartCtx.createLinearGradient(0, 0, 0, 300);
+    if (isLight) {
+      gradient.addColorStop(0, 'rgba(56, 142, 60, 0.2)');
+      gradient.addColorStop(1, 'rgba(56, 142, 60, 0.0)');
+    } else {
+      gradient.addColorStop(0, 'rgba(184, 255, 60, 0.25)');
+      gradient.addColorStop(1, 'rgba(184, 255, 60, 0.0)');
+    }
 
     visitorsChart = new Chart(ctx, {
       type: 'line',
@@ -597,20 +861,22 @@
             label: 'Unique Visitors',
             data: visitors,
             borderColor: accentColor,
-            backgroundColor: 'transparent',
-            borderWidth: 2,
-            tension: 0.3,
-            pointRadius: 4,
+            backgroundColor: gradient,
+            fill: true,
+            borderWidth: 2.5,
+            tension: 0.35,
+            pointRadius: 3.5,
+            pointHoverRadius: 6,
             pointBackgroundColor: accentColor
           },
           {
             label: 'Total Sessions',
             data: sessions,
-            borderColor: '#4da6ff',
+            borderColor: secondaryColor,
             backgroundColor: 'transparent',
             borderWidth: 1.5,
-            borderDash: [5, 5],
-            tension: 0.3,
+            borderDash: [4, 4],
+            tension: 0.35,
             pointRadius: 0
           }
         ]
@@ -618,12 +884,22 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
         plugins: {
           legend: {
-            labels: {
-              color: textColor,
-              font: { family: 'DM Sans', size: 12 }
-            }
+            display: false
+          },
+          tooltip: {
+            backgroundColor: 'rgba(15, 15, 20, 0.95)',
+            titleFont: { family: 'JetBrains Mono', size: 12, weight: 'bold' },
+            bodyFont: { family: 'DM Sans', size: 12 },
+            borderColor: 'rgba(255, 255, 255, 0.15)',
+            borderWidth: 1,
+            padding: 10,
+            cornerRadius: 8
           }
         },
         scales: {
@@ -638,6 +914,16 @@
         }
       }
     });
+
+    // Apply dataset visibility according to toggle button states
+    document.querySelectorAll('.btn-metric-toggle').forEach(btn => {
+      const idx = parseInt(btn.dataset.dataset, 10);
+      const isActive = btn.classList.contains('active');
+      if (visitorsChart && !isActive) {
+        visitorsChart.setDatasetVisibility(idx, false);
+      }
+    });
+    visitorsChart.update();
   };
 
   // Real-time Database Listeners for Dashboard updates
@@ -695,27 +981,74 @@
     }
 
     const loginSubmitBtn = document.getElementById('btn-login-submit');
-    if (loginSubmitBtn && !loginForm) {
+    if (loginSubmitBtn) {
       loginSubmitBtn.addEventListener('click', (e) => {
         e.preventDefault();
         handleLogin();
       });
     }
     
+    // Theme Toggle Handler
+    const themeBtn = document.getElementById('theme-toggle');
+    const root = document.documentElement;
+
+    const syncThemeUI = () => {
+      const isLight = root.getAttribute('data-theme') === 'light';
+      if (themeBtn) {
+        themeBtn.textContent = isLight ? '☀️' : '🌙';
+      }
+    };
+
+    syncThemeUI();
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const isLight = root.getAttribute('data-theme') === 'light';
+        if (isLight) {
+          root.removeAttribute('data-theme');
+          localStorage.setItem('theme', 'dark');
+        } else {
+          root.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+        }
+        syncThemeUI();
+        loadChartData();
+      });
+    }
+
     // Auth logout trigger
     const logoutBtn = document.getElementById('btn-logout');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', handleLogout);
     }
 
-    // Refresh dashboard data
+    // Refresh dashboard data with spin icon animation
     const refreshBtn = document.getElementById('btn-refresh');
     if (refreshBtn) {
       refreshBtn.addEventListener('click', () => {
+        const svg = refreshBtn.querySelector('svg');
+        if (svg) svg.style.transform = 'rotate(360deg)';
         loadDashboardData();
         showToast('Refreshed all metrics.', 'info');
+        setTimeout(() => { if (svg) svg.style.transform = ''; }, 600);
       });
     }
+
+    // Chart metric line visibility toggles
+    document.querySelectorAll('.btn-metric-toggle').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const toggleBtn = e.currentTarget;
+        const datasetIndex = parseInt(toggleBtn.dataset.dataset, 10);
+
+        toggleBtn.classList.toggle('active');
+        const isActive = toggleBtn.classList.contains('active');
+
+        if (visitorsChart) {
+          visitorsChart.setDatasetVisibility(datasetIndex, isActive);
+          visitorsChart.update();
+        }
+      });
+    });
 
     // Chart toggle tabs
     document.querySelectorAll('.chart-tab').forEach(tab => {
@@ -745,6 +1078,17 @@
         loadSessionsList();
       });
     }
+
+    // Side Drawer Close triggers
+    const closeDrawerBtn = document.getElementById('close-drawer-btn');
+    const drawerOverlay = document.getElementById('session-drawer-overlay');
+
+    if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', closeSessionDrawer);
+    if (drawerOverlay) drawerOverlay.addEventListener('click', closeSessionDrawer);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSessionDrawer();
+    });
   };
 
   // Entry Point
