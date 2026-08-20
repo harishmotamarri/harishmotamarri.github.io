@@ -15,6 +15,7 @@
       --border: rgba(255, 255, 255, 0.07);
       --border2: rgba(255, 255, 255, 0.14);
       --text: #ededed;
+      --foreground: #ededed;
       --muted: #9a9a9a;
       --muted2: #9a9a9a;
       --accent: #b8ff3c;
@@ -446,36 +447,99 @@
     }
 
     /* ===== NAV ===== */
-    #navbar {
+    .navbar-wrapper {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
+      width: 100%;
       z-index: 1000;
-      height: 70px;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      padding: 12px 16px;
+      transition: padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #navbar {
+      pointer-events: auto;
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 4rem;
       background: transparent;
       backdrop-filter: blur(0px);
-      border-bottom: 1px solid transparent;
-      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      -webkit-backdrop-filter: blur(0px);
+      border-radius: 0px;
+      border: 1px solid transparent;
+      color: var(--text);
+      cursor: crosshair;
+      transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     #navbar.scrolled {
-      height: 60px;
-      padding: 0 4rem;
-      background: rgba(11, 11, 11, 0.75);
+      height: 52px;
+      max-width: 92%;
+      margin: 0 auto;
+      padding: 0 2rem;
+      background: rgba(14, 14, 14, 0.88);
       backdrop-filter: blur(20px);
-      border-color: rgba(255, 255, 255, 0.08);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+      border-radius: 9999px;
+      transform: translateY(4px);
     }
 
     [data-theme="light"] #navbar.scrolled {
-      background: rgba(245, 244, 240, 0.85);
-      border-color: rgba(0, 0, 0, 0.08);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      background: rgba(245, 240, 230, 0.92);
+      border-color: rgba(57, 45, 24, 0.15);
+      box-shadow: 0 12px 32px rgba(86, 69, 37, 0.08);
+    }
+
+    #navbar.scrolled:hover {
+      background: rgba(20, 20, 20, 0.94);
+      border-color: rgba(184, 255, 60, 0.32);
+      box-shadow:
+        0 16px 36px rgba(0, 0, 0, 0.65),
+        0 0 20px rgba(184, 255, 60, 0.14);
+    }
+
+    [data-theme="light"] #navbar.scrolled:hover {
+      background: rgba(246, 241, 231, 0.95);
+      border-color: rgba(61, 133, 0, 0.3);
+      box-shadow:
+        0 16px 36px rgba(86, 69, 37, 0.12),
+        0 0 18px rgba(61, 133, 0, 0.1);
+    }
+
+    /* DESKTOP HOVER STATE - Floating Pill Transformation aligned with website theme */
+    #navbar:hover {
+      width: 100%;
+      max-width: 100%;
+      padding: 0 4rem;
+      background: rgba(18, 18, 18, 0.88);
+      border-radius: 9999px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(184, 255, 60, 0.28);
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.6),
+        0 0 24px rgba(184, 255, 60, 0.12);
+      transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] #navbar:hover {
+      background: rgba(246, 241, 231, 0.92);
+      border-color: rgba(61, 133, 0, 0.25);
+      box-shadow:
+        0 20px 40px rgba(86, 69, 37, 0.12),
+        0 0 20px rgba(61, 133, 0, 0.08);
     }
 
     .nav-logo {
@@ -485,7 +549,7 @@
       position: relative;
       padding: 0.12rem 0 0.12rem 0.9rem;
       font-family: var(--body);
-      transition: transform 0.25s ease, opacity 0.25s ease;
+      transition: transform 0.3s ease, opacity 0.25s ease;
     }
 
     .nav-logo::before {
@@ -502,7 +566,7 @@
     }
 
     .nav-logo:hover {
-      transform: translateY(-1px);
+      transform: translateY(-1px) scale(1.04);
       opacity: 0.96;
     }
 
@@ -566,6 +630,7 @@
       transition: color 0.2s;
       position: relative;
       padding-bottom: 2px;
+      text-decoration: none;
     }
 
     .nav-links a::after {
@@ -603,6 +668,7 @@
       justify-content: center;
       padding: 0;
       transition: transform 0.3s;
+      color: var(--text);
     }
 
     #theme-toggle:hover {
@@ -617,19 +683,24 @@
       text-transform: uppercase;
       padding: 10px 24px;
       border: 1px solid rgba(184, 255, 60, 0.5);
-      border-radius: 8px;
+      border-radius: 9999px;
       background: rgba(184, 255, 60, 0.05);
-      color: var(--accent);
+      color: var(--accent) !important;
       transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
       box-shadow: 0 0 0 rgba(184, 255, 60, 0);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .nav-resume:hover {
       background: var(--accent);
-      color: #000;
+      color: #000 !important;
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba(184, 255, 60, 0.25);
       border-color: var(--accent);
+      opacity: 1;
     }
 
     /* Sound toggle in nav */
@@ -4911,10 +4982,24 @@
 
     /* ===== MOBILE ===== */
     @media (max-width: 768px) {
+      .navbar-wrapper {
+        padding: 8px 12px;
+      }
+
       #navbar,
       #navbar.scrolled {
-        height: 60px;
-        padding: 0 1rem;
+        height: 56px;
+        padding: 0 0.8rem;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      #navbar:hover {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 0.8rem;
+        margin: 0;
+        border-radius: 9999px;
       }
 
       .nav-logo {
